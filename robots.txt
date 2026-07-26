@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://heroic-snickerdoodle-517e48.netlify.app/sitemap.xml

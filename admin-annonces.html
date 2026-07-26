@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SunuSouf — Admin Annonces</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --or:#1B4F63;--or-light:#2C6E86;--or-pale:#EAF1F3;--or-border:#C3D9DF;
+  --vert:#2F6B45;--noir:#151A17;--gris-fonce:#3C433E;--gris:#666D66;--gris-mid:#8D948C;
+  --gris-clair:#DDE0DA;--fond:#F3F3EF;--blanc:#FFFFFF;--rouge:#A23F30;--rouge-pale:#F7EBE8;
+  --vert-pale:#EAF3EC;
+  --font-main:'Inter',Arial,sans-serif;--font-serif:'Fraunces',Georgia,serif;--font-mono:'IBM Plex Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-height:100vh;font-size:14px;line-height:1.5;}
+
+/* ═══ LOGIN ═══ */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.login-box{background:var(--blanc);border:1.5px solid var(--gris-clair);border-radius:12px;padding:40px 36px;max-width:380px;width:100%;box-shadow:0 10px 30px rgba(21,26,23,0.08);}
+.login-box .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--or);margin-bottom:8px;}
+.login-box h1{font-family:var(--font-serif);font-size:1.6rem;margin-bottom:24px;}
+.login-box input{width:100%;padding:11px 14px;border:1.5px solid var(--gris-clair);border-radius:6px;font-family:var(--font-main);font-size:14px;margin-bottom:12px;outline:none;transition:border-color .15s;}
+.login-box input:focus{border-color:var(--or);}
+.login-box button{width:100%;padding:12px;background:var(--or);color:var(--blanc);border:none;border-radius:6px;font-weight:700;font-size:14px;cursor:pointer;transition:background .15s;}
+.login-box button:hover{background:var(--or-light);}
+.login-msg{margin-top:12px;font-size:13px;color:var(--rouge);}
+
+/* ═══ DASHBOARD ═══ */
+#dashboard{display:none;min-height:100vh;}
+.topbar{background:var(--blanc);border-bottom:1px solid var(--gris-clair);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.topbar h1{font-family:var(--font-serif);font-size:1.3rem;}
+.topbar .who{font-size:12px;color:var(--gris-mid);font-family:var(--font-mono);}
+.btn-logout{background:none;border:1.5px solid var(--gris-clair);color:var(--gris);padding:8px 16px;border-radius:6px;font-size:13px;cursor:pointer;font-weight:600;}
+.btn-logout:hover{border-color:var(--rouge);color:var(--rouge);}
+
+.tabs{display:flex;gap:4px;padding:16px 28px 0;border-bottom:1px solid var(--gris-clair);background:var(--blanc);}
+.tab-btn{padding:12px 20px;background:none;border:none;font-family:var(--font-main);font-size:14px;font-weight:600;color:var(--gris);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;}
+.tab-btn.active{color:var(--or);border-bottom-color:var(--or);}
+.tab-btn:hover:not(.active){color:var(--noir);}
+
+.content{max-width:960px;margin:0 auto;padding:28px 24px 60px;}
+.panel{display:none;}
+.panel.active{display:block;}
+
+.card{background:var(--blanc);border:1.5px solid var(--gris-clair);border-radius:10px;padding:28px 30px;margin-bottom:24px;}
+.card h2{font-family:var(--font-serif);font-size:1.3rem;margin-bottom:4px;}
+.card .sub{font-size:13px;color:var(--gris-mid);margin-bottom:20px;}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--gris-fonce);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--gris-clair);border-radius:6px;font-family:var(--font-main);font-size:14px;background:var(--fond);outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--or);background:var(--blanc);}
+.field textarea{resize:vertical;min-height:70px;}
+.checkbox-row{display:flex;gap:20px;align-items:center;margin-bottom:14px;}
+.checkbox-row label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--gris-fonce);cursor:pointer;}
+.checkbox-row input{width:auto;}
+
+.btn-submit{padding:12px 26px;background:var(--vert);color:var(--blanc);border:none;border-radius:6px;font-weight:700;font-size:14px;cursor:pointer;transition:background .15s;}
+.btn-submit:hover{background:#265a39;}
+.btn-submit:disabled{opacity:.6;cursor:default;}
+.feedback{margin-top:14px;font-size:13px;font-weight:600;padding:10px 14px;border-radius:6px;display:none;}
+.feedback.ok{display:block;background:var(--vert-pale);color:var(--vert);}
+.feedback.err{display:block;background:var(--rouge-pale);color:var(--rouge);}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:9px 10px;color:var(--gris-mid);font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:.4px;border-bottom:1.5px solid var(--gris-clair);}
+td{padding:10px;border-bottom:1px solid var(--gris-clair);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+.tag{font-family:var(--font-mono);font-size:11px;background:var(--or-pale);color:var(--or);padding:2px 8px;border-radius:10px;}
+.btn-del{background:none;border:none;color:var(--rouge);font-size:12px;font-weight:700;cursor:pointer;}
+.btn-del:hover{text-decoration:underline;}
+.empty{color:var(--gris-mid);font-size:13px;padding:16px 0;}
+
+@media(max-width:640px){.grid2{grid-template-columns:1fr;}.topbar,.tabs,.content{padding-left:16px;padding-right:16px;}}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="eyebrow">SunuSouf</div>
+    <h1>Espace admin</h1>
+    <input type="email" id="login-email" placeholder="Email" autocomplete="username">
+    <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
+    <button onclick="login()">Se connecter</button>
+    <div class="login-msg" id="login-msg"></div>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="dashboard">
+  <div class="topbar">
+    <h1>SunuSouf — Annonces</h1>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <span class="who" id="who"></span>
+      <button class="btn-logout" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="terrain" onclick="switchTab('terrain')">Terrains</button>
+    <button class="tab-btn" data-tab="fruit" onclick="switchTab('fruit')">Fruits</button>
+    <button class="tab-btn" data-tab="elevage" onclick="switchTab('elevage')">Élevage & matériel</button>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ TERRAIN ══ -->
+    <div class="panel active" id="panel-terrain">
+      <div class="card">
+        <h2>Ajouter un terrain</h2>
+        <div class="sub">Publie directement une annonce de terrain, sans passer par les crédits.</div>
+        <form id="form-terrain">
+          <div class="grid2">
+            <div class="field"><label>Titre *</label><input type="text" id="t-titre" required></div>
+            <div class="field"><label>Type *</label>
+              <select id="t-type" required>
+                <option value="Terrain agricole">Terrain agricole</option>
+                <option value="Terrain résidentiel">Terrain résidentiel</option>
+                <option value="Terrain commercial">Terrain commercial</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Région *</label>
+              <select id="t-region" required>
+                <option value="">Choisir une région</option>
+                <option value="dakar">Dakar</option><option value="thies">Thiès</option>
+                <option value="saint-louis">Saint-Louis</option><option value="kaolack">Kaolack</option>
+                <option value="ziguinchor">Ziguinchor</option><option value="fatick">Fatick</option>
+                <option value="kolda">Kolda</option><option value="louga">Louga</option>
+                <option value="matam">Matam</option><option value="tambacounda">Tambacounda</option>
+                <option value="kedougou">Kédougou</option><option value="diourbel">Diourbel</option>
+                <option value="kaffrine">Kaffrine</option><option value="sedhiou">Sédhiou</option>
+              </select>
+            </div>
+            <div class="field"><label>Adresse</label><input type="text" id="t-adresse"></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Surface (m²) *</label><input type="number" step="0.01" id="t-surface" required></div>
+            <div class="field"><label>Prix *</label><input type="text" id="t-prix" placeholder="Ex : 2 500 000 FCFA" required></div>
+          </div>
+          <div class="checkbox-row">
+            <label><input type="checkbox" id="t-eau"> Eau courante</label>
+            <label><input type="checkbox" id="t-elec"> Électricité</label>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Type de sol (optionnel)</label>
+              <select id="t-sol">
+                <option value="">Choisir</option><option value="sableux">Sableux</option>
+                <option value="argileux">Argileux</option><option value="limoneux">Limoneux</option>
+                <option value="loameux">Loameux</option><option value="mixte">Mixte</option>
+              </select>
+            </div>
+            <div class="field"><label>pH (optionnel)</label><input type="number" step="0.1" id="t-ph"></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Salinité (optionnel)</label><input type="number" step="0.01" id="t-salinite"></div>
+            <div class="field"><label>Matière organique % (optionnel)</label><input type="number" step="0.01" id="t-matorg"></div>
+          </div>
+          <div class="field"><label>Description *</label><textarea id="t-description" required></textarea></div>
+          <div class="field"><label>Contact *</label><input type="text" id="t-contact" placeholder="77 XXX XX XX ou email" required></div>
+          <div class="field"><label>Photos</label><input type="file" id="t-photos" accept="image/*" multiple></div>
+          <button type="submit" class="btn-submit" id="t-btn">Publier l'annonce</button>
+          <div class="feedback" id="t-feedback"></div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Dernières annonces terrains</h2>
+        <table><thead><tr><th>Titre</th><th>Région</th><th>Prix</th><th>Date</th><th></th></tr></thead>
+        <tbody id="list-terrain"><tr><td colspan="5" class="empty">Chargement…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- ══ FRUIT ══ -->
+    <div class="panel" id="panel-fruit">
+      <div class="card">
+        <h2>Ajouter une vente de fruits</h2>
+        <div class="sub">Publie directement une annonce de fruits.</div>
+        <form id="form-fruit">
+          <div class="grid2">
+            <div class="field"><label>Nom du fruit *</label><input type="text" id="f-nom" required></div>
+            <div class="field"><label>Région *</label>
+              <select id="f-region" required>
+                <option value="">Choisir une région</option>
+                <option value="dakar">Dakar</option><option value="thies">Thiès</option>
+                <option value="saint-louis">Saint-Louis</option><option value="kaolack">Kaolack</option>
+                <option value="ziguinchor">Ziguinchor</option><option value="fatick">Fatick</option>
+                <option value="kolda">Kolda</option><option value="louga">Louga</option>
+                <option value="matam">Matam</option><option value="tambacounda">Tambacounda</option>
+                <option value="kedougou">Kédougou</option><option value="diourbel">Diourbel</option>
+                <option value="kaffrine">Kaffrine</option><option value="sedhiou">Sédhiou</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Prix / kg *</label><input type="number" step="0.01" id="f-prix" required></div>
+            <div class="field"><label>Quantité (kg) *</label><input type="number" step="0.01" id="f-quantite" required></div>
+          </div>
+          <div class="field"><label>Description *</label><textarea id="f-description" required></textarea></div>
+          <div class="field"><label>Contact *</label><input type="text" id="f-contact" placeholder="77 XXX XX XX ou email" required></div>
+          <div class="field"><label>Photos</label><input type="file" id="f-photos" accept="image/*" multiple></div>
+          <button type="submit" class="btn-submit" id="f-btn">Publier l'annonce</button>
+          <div class="feedback" id="f-feedback"></div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Dernières ventes de fruits</h2>
+        <table><thead><tr><th>Fruit</th><th>Région</th><th>Prix/kg</th><th>Date</th><th></th></tr></thead>
+        <tbody id="list-fruit"><tr><td colspan="5" class="empty">Chargement…</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- ══ ELEVAGE ══ -->
+    <div class="panel" id="panel-elevage">
+      <div class="card">
+        <h2>Ajouter élevage / matériel</h2>
+        <div class="sub">Publie directement une annonce d'animal ou de matériel.</div>
+        <form id="form-elevage">
+          <div class="field"><label>Que vendez-vous ? *</label>
+            <select id="e-categorie" required onchange="toggleElevageCat()">
+              <option value="animal">Un animal vivant</option>
+              <option value="materiel_agricole">Matériel agricole</option>
+              <option value="materiel_elevage">Matériel d'élevage</option>
+            </select>
+          </div>
+          <div id="bloc-animal" class="grid2">
+            <div class="field"><label>Type d'animal *</label>
+              <select id="e-animal-type">
+                <option value="">Choisir</option><option value="Bovin">Bovin</option>
+                <option value="Ovin">Ovin</option><option value="Caprin">Caprin</option>
+                <option value="Volaille">Volaille</option><option value="Porcin">Porcin</option>
+                <option value="Équin">Équin</option><option value="Autre">Autre</option>
+              </select>
+            </div>
+            <div class="field"><label>Race</label><input type="text" id="e-animal-race"></div>
+            <div class="field"><label>Âge</label><input type="text" id="e-animal-age" placeholder="Ex : 2 ans"></div>
+          </div>
+          <div id="bloc-materiel" class="grid2" style="display:none;">
+            <div class="field"><label>Nom du matériel *</label><input type="text" id="e-materiel-nom"></div>
+            <div class="field"><label>État *</label>
+              <select id="e-materiel-etat">
+                <option value="">Choisir</option><option value="Neuf">Neuf</option>
+                <option value="Occasion - bon état">Occasion - bon état</option>
+                <option value="Occasion - à réviser">Occasion - à réviser</option>
+              </select>
+            </div>
+            <div class="field"><label>Marque (optionnel)</label><input type="text" id="e-materiel-marque"></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label id="e-label-qte">Quantité (têtes) *</label><input type="number" id="e-quantite" required></div>
+            <div class="field"><label>Région *</label>
+              <select id="e-region" required>
+                <option value="">Choisir une région</option>
+                <option value="dakar">Dakar</option><option value="thies">Thiès</option>
+                <option value="saint-louis">Saint-Louis</option><option value="kaolack">Kaolack</option>
+                <option value="ziguinchor">Ziguinchor</option><option value="fatick">Fatick</option>
+                <option value="kolda">Kolda</option><option value="louga">Louga</option>
+                <option value="matam">Matam</option><option value="tambacounda">Tambacounda</option>
+                <option value="kedougou">Kédougou</option><option value="diourbel">Diourbel</option>
+                <option value="kaffrine">Kaffrine</option><option value="sedhiou">Sédhiou</option>
+              </select>
+            </div>
+          </div>
+          <div class="field"><label>Prix *</label><input type="text" id="e-prix" required></div>
+          <div class="field"><label>Description *</label><textarea id="e-description" required></textarea></div>
+          <div class="field"><label>Contact *</label><input type="text" id="e-contact" placeholder="77 XXX XX XX ou email" required></div>
+          <div class="field"><label>Photos</label><input type="file" id="e-photos" accept="image/*" multiple></div>
+          <button type="submit" class="btn-submit" id="e-btn">Publier l'annonce</button>
+          <div class="feedback" id="e-feedback"></div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Dernières annonces élevage & matériel</h2>
+        <table><thead><tr><th>Nom</th><th>Région</th><th>Prix</th><th>Date</th><th></th></tr></thead>
+        <tbody id="list-elevage"><tr><td colspan="5" class="empty">Chargement…</td></tr></tbody></table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://gupcgsblynwigsvedunk.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_LLRBYlYUbLGUOekbQBYluA_RLy53KpY';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+/* ══ AUTH ══ */
+async function checkSession(){
+  const { data: { session } } = await db.auth.getSession();
+  if (session) showDashboard(session);
+}
+async function login(){
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const msg = document.getElementById('login-msg');
+  msg.textContent = '';
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
+  if (error) { msg.textContent = 'Connexion refusée : ' + error.message; return; }
+  showDashboard(data.session);
+}
+function showDashboard(session){
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('who').textContent = session.user.email;
+  loadList('terrain'); loadList('fruit'); loadList('elevage');
+}
+async function logout(){
+  await db.auth.signOut();
+  location.reload();
+}
+checkSession();
+
+/* ══ TABS ══ */
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+function toggleElevageCat(){
+  const isAnimal = document.getElementById('e-categorie').value === 'animal';
+  document.getElementById('bloc-animal').style.display = isAnimal ? 'grid' : 'none';
+  document.getElementById('bloc-materiel').style.display = isAnimal ? 'none' : 'grid';
+  document.getElementById('e-label-qte').textContent = isAnimal ? 'Quantité (têtes) *' : 'Quantité *';
+}
+
+/* ══ HELPERS ══ */
+function feedback(id, text, ok){
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'feedback ' + (ok ? 'ok' : 'err');
+}
+async function uploadPhotos(files, dossier){
+  const urls = [];
+  for (const file of files){
+    if (file.size > MAX_FILE_SIZE) continue;
+    const fn = `${dossier}/${Date.now()}-${Math.random().toString(36).slice(2)}-${file.name}`;
+    const { error } = await db.storage.from('Photos').upload(fn, file, { upsert: true });
+    if (!error) urls.push(db.storage.from('Photos').getPublicUrl(fn).data?.publicUrl);
+  }
+  return urls.length === 0 ? null : urls.length === 1 ? urls[0] : JSON.stringify(urls);
+}
+function fmtDate(d){ return new Date(d).toLocaleDateString('fr-FR'); }
+
+/* ══ LOAD LISTS ══ */
+async function loadList(type){
+  const table = type === 'terrain' ? 'terrains' : type === 'fruit' ? 'fruits' : 'elevage';
+  const tbody = document.getElementById('list-' + type);
+  const { data, error } = await db.from(table).select('*').order('created_at', { ascending: false }).limit(15);
+  if (error) { tbody.innerHTML = `<tr><td colspan="5" class="empty">Erreur : ${error.message}</td></tr>`; return; }
+  if (!data?.length) { tbody.innerHTML = `<tr><td colspan="5" class="empty">Aucune annonce pour l'instant.</td></tr>`; return; }
+  tbody.innerHTML = data.map(row => {
+    const nom = type === 'terrain' ? row.titre : type === 'fruit' ? row.fruit_nom : (row.animal_type || row.materiel_nom || row.categorie);
+    const region = row.region || '—';
+    const prix = type === 'fruit' ? (row.prix_kg + ' F/kg') : (row.prix || '—');
+    return `<tr>
+      <td>${escapeHtml(nom || '—')}</td>
+      <td><span class="tag">${escapeHtml(region)}</span></td>
+      <td>${escapeHtml(String(prix))}</td>
+      <td>${fmtDate(row.created_at)}</td>
+      <td><button class="btn-del" onclick="deleteRow('${table}','${row.id}','${type}')">Supprimer</button></td>
+    </tr>`;
+  }).join('');
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+async function deleteRow(table, id, type){
+  if (!confirm('Supprimer cette annonce ?')) return;
+  const { error } = await db.from(table).delete().eq('id', id);
+  if (error) { alert('Erreur : ' + error.message + '\n(Souvent : tu ne peux supprimer que les annonces postées avec ton propre compte.)'); return; }
+  loadList(type);
+}
+
+/* ══ FORM: TERRAIN ══ */
+document.getElementById('form-terrain').addEventListener('submit', async e => {
+  e.preventDefault();
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { feedback('t-feedback', 'Session expirée, reconnecte-toi.', false); return; }
+  const btn = document.getElementById('t-btn');
+  btn.disabled = true; btn.textContent = 'Publication…';
+  const files = Array.from(document.getElementById('t-photos').files || []);
+  const photo_url = await uploadPhotos(files, 'terrains');
+  const payload = {
+    titre: document.getElementById('t-titre').value.trim(),
+    type_annonce: document.getElementById('t-type').value,
+    region: document.getElementById('t-region').value,
+    adresse: document.getElementById('t-adresse').value.trim(),
+    surface: parseFloat(document.getElementById('t-surface').value),
+    prix: document.getElementById('t-prix').value.trim(),
+    eau_courante: document.getElementById('t-eau').checked,
+    electricite: document.getElementById('t-elec').checked,
+    type_sol: document.getElementById('t-sol').value || null,
+    ph: document.getElementById('t-ph').value.trim() === '' ? null : parseFloat(document.getElementById('t-ph').value),
+    salinite: document.getElementById('t-salinite').value.trim() === '' ? null : parseFloat(document.getElementById('t-salinite').value),
+    matiere_organique: document.getElementById('t-matorg').value.trim() === '' ? null : parseFloat(document.getElementById('t-matorg').value),
+    description: document.getElementById('t-description').value.trim(),
+    contact: document.getElementById('t-contact').value.trim(),
+    photo_url,
+    user_id: session.user.id
+  };
+  const { error } = await db.from('terrains').insert([payload]);
+  if (error) feedback('t-feedback', 'Erreur : ' + error.message, false);
+  else { feedback('t-feedback', '✅ Annonce terrain publiée.', true); e.target.reset(); loadList('terrain'); }
+  btn.disabled = false; btn.textContent = "Publier l'annonce";
+});
+
+/* ══ FORM: FRUIT ══ */
+document.getElementById('form-fruit').addEventListener('submit', async e => {
+  e.preventDefault();
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { feedback('f-feedback', 'Session expirée, reconnecte-toi.', false); return; }
+  const btn = document.getElementById('f-btn');
+  btn.disabled = true; btn.textContent = 'Publication…';
+  const files = Array.from(document.getElementById('f-photos').files || []);
+  const photo_url = await uploadPhotos(files, 'fruits');
+  const payload = {
+    fruit_nom: document.getElementById('f-nom').value.trim(),
+    region: document.getElementById('f-region').value,
+    prix_kg: parseFloat(document.getElementById('f-prix').value),
+    quantite_kg: parseFloat(document.getElementById('f-quantite').value),
+    description: document.getElementById('f-description').value.trim(),
+    contact: document.getElementById('f-contact').value.trim(),
+    photo_url,
+    user_id: session.user.id
+  };
+  const { error } = await db.from('fruits').insert([payload]);
+  if (error) feedback('f-feedback', 'Erreur : ' + error.message, false);
+  else { feedback('f-feedback', '✅ Vente de fruits publiée.', true); e.target.reset(); loadList('fruit'); }
+  btn.disabled = false; btn.textContent = "Publier l'annonce";
+});
+
+/* ══ FORM: ELEVAGE ══ */
+document.getElementById('form-elevage').addEventListener('submit', async e => {
+  e.preventDefault();
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { feedback('e-feedback', 'Session expirée, reconnecte-toi.', false); return; }
+  const btn = document.getElementById('e-btn');
+  btn.disabled = true; btn.textContent = 'Publication…';
+  const files = Array.from(document.getElementById('e-photos').files || []);
+  const photo_url = await uploadPhotos(files, 'elevage');
+  const categorie = document.getElementById('e-categorie').value;
+  const estAnimal = categorie === 'animal';
+  const payload = {
+    categorie,
+    animal_type: estAnimal ? document.getElementById('e-animal-type').value : null,
+    animal_race: estAnimal ? document.getElementById('e-animal-race').value.trim() : null,
+    animal_age: estAnimal ? document.getElementById('e-animal-age').value.trim() : null,
+    materiel_nom: estAnimal ? null : document.getElementById('e-materiel-nom').value.trim(),
+    materiel_etat: estAnimal ? null : document.getElementById('e-materiel-etat').value,
+    materiel_marque: estAnimal ? null : (document.getElementById('e-materiel-marque').value.trim() || null),
+    quantite: parseFloat(document.getElementById('e-quantite').value),
+    region: document.getElementById('e-region').value,
+    prix: document.getElementById('e-prix').value.trim(),
+    description: document.getElementById('e-description').value.trim(),
+    contact: document.getElementById('e-contact').value.trim(),
+    photo_url,
+    user_id: session.user.id
+  };
+  const { error } = await db.from('elevage').insert([payload]);
+  if (error) feedback('e-feedback', 'Erreur : ' + error.message, false);
+  else { feedback('e-feedback', '✅ Annonce élevage publiée.', true); e.target.reset(); toggleElevageCat(); loadList('elevage'); }
+  btn.disabled = false; btn.textContent = "Publier l'annonce";
+});
+</script>
+</body>
+</html>
