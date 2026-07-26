@@ -89,6 +89,8 @@ tr:last-child td{border-bottom:none;}
     <input type="email" id="login-email" placeholder="Email" autocomplete="username">
     <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
     <button onclick="login()">Se connecter</button>
+    <div style="text-align:center;margin:14px 0;color:var(--gris-mid);font-size:12px;">— ou —</div>
+    <button onclick="loginGoogle()" style="background:var(--blanc);color:var(--noir);border:1.5px solid var(--gris-clair);">🔵 Se connecter avec Google</button>
     <div class="login-msg" id="login-msg"></div>
   </div>
 </div>
@@ -296,6 +298,10 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 async function checkSession(){
   const { data: { session } } = await db.auth.getSession();
   if (session) showDashboard(session);
+}
+async function loginGoogle(){
+  const { error } = await db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href.split('#')[0] } });
+  if (error) document.getElementById('login-msg').textContent = 'Erreur : ' + error.message;
 }
 async function login(){
   const email = document.getElementById('login-email').value.trim();
