@@ -1041,9 +1041,7 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
   <button type="button" class="login-back" onclick="closePosterAnnonce()" aria-label="Retour">← Retour</button>
   <div class="annonce-form">
     <h2>Publier un terrain</h2>
-    <p class="annonce-note">⚠️ Cette publication consommera <strong>1 crédit</strong>. Solde actuel : <strong id="credits-form-terrain">…</strong> crédit(s).</p>
     <p class="annonce-note" id="new-seller-note-terrain" style="display:none;"></p>
-    <div class="credit-alert" id="credit-alert-terrain" role="alert">❌ Solde insuffisant. Veuillez acheter des crédits.</div>
     <form id="form-terrain" novalidate>
       <div class="annonce-input-group"><label for="titre">Titre de l'annonce</label><input type="text" id="titre" placeholder="Ex : Terrain agricole à Thiès" maxlength="100"></div>
       <div class="annonce-input-group"><label for="region">Région</label><select id="region"><option value="">Choisir une région</option><option value="dakar">Dakar</option><option value="thies">Thiès</option><option value="saint-louis">Saint-Louis</option><option value="kaolack">Kaolack</option><option value="ziguinchor">Ziguinchor</option><option value="fatick">Fatick</option><option value="kolda">Kolda</option><option value="louga">Louga</option><option value="matam">Matam</option><option value="tambacounda">Tambacounda</option><option value="kedougou">Kédougou</option><option value="diourbel">Diourbel</option><option value="kaffrine">Kaffrine</option><option value="sedhiou">Sédhiou</option></select></div>
@@ -1070,7 +1068,7 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
       </div>
       <div id="preview-terrain" style="display:none;margin-bottom:14px;"><div id="preview-terrain-list" class="preview-gallery"></div></div>
       <div id="terrain-message" class="form-feedback" style="display:none;" role="alert"></div>
-      <button type="submit" class="btn-principal" id="btn-submit-terrain" style="width:100%;padding:14px;font-size:15px;">Publier l'annonce (1 crédit)</button>
+      <button type="submit" class="btn-principal" id="btn-submit-terrain" style="width:100%;padding:14px;font-size:15px;">Publier l'annonce</button>
     </form>
   </div>
 </section>
@@ -1079,9 +1077,7 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
   <button type="button" class="login-back" onclick="closeVenteFruits()" aria-label="Retour">← Retour</button>
   <div class="fruits-card">
     <h2>Vendre des fruits</h2>
-    <p class="annonce-note">⚠️ Cette publication consommera <strong>1 crédit</strong>. Solde actuel : <strong id="credits-form-fruit">…</strong> crédit(s).</p>
     <p class="annonce-note" id="new-seller-note-fruit" style="display:none;"></p>
-    <div class="credit-alert" id="credit-alert-fruit" role="alert">❌ Solde insuffisant. Veuillez acheter des crédits.</div>
     <form id="form-fruit" novalidate>
       <div class="annonce-input-group"><label for="fruit-nom">Fruit</label><input type="text" id="fruit-nom" placeholder="Ex : Mangue, Banane, Pastèque" maxlength="80"></div>
       <div class="annonce-input-group"><label for="fruit-region">Région</label><select id="fruit-region"><option value="">Choisir une région</option><option value="dakar">Dakar</option><option value="thies">Thiès</option><option value="saint-louis">Saint-Louis</option><option value="kaolack">Kaolack</option><option value="ziguinchor">Ziguinchor</option><option value="fatick">Fatick</option><option value="kolda">Kolda</option><option value="louga">Louga</option><option value="matam">Matam</option><option value="tambacounda">Tambacounda</option><option value="kedougou">Kédougou</option><option value="diourbel">Diourbel</option><option value="kaffrine">Kaffrine</option><option value="sedhiou">Sédhiou</option></select></div>
@@ -1097,7 +1093,7 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
       </div>
       <div id="preview-fruit" style="display:none;margin-bottom:14px;"><div id="preview-fruit-list" class="preview-gallery"></div></div>
       <div id="fruit-message" class="form-feedback" style="display:none;" role="alert"></div>
-      <button type="submit" class="btn-principal" id="btn-submit-fruit" style="width:100%;padding:14px;font-size:15px;background:var(--vert);">Publier la vente de fruits (1 crédit)</button>
+      <button type="submit" class="btn-principal" id="btn-submit-fruit" style="width:100%;padding:14px;font-size:15px;background:var(--vert);">Publier la vente de fruits</button>
     </form>
   </div>
 </section>
@@ -1106,9 +1102,7 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
   <button type="button" class="login-back" onclick="closeVenteElevage()" aria-label="Retour">← Retour</button>
   <div class="elevage-card">
     <h2>Vendre un animal ou du matériel</h2>
-    <p class="annonce-note">⚠️ Cette publication consommera <strong>1 crédit</strong>. Solde actuel : <strong id="credits-form-elevage">…</strong> crédit(s).</p>
     <p class="annonce-note" id="new-seller-note-elevage" style="display:none;"></p>
-    <div class="credit-alert" id="credit-alert-elevage" role="alert">❌ Solde insuffisant. Veuillez acheter des crédits.</div>
     <form id="form-elevage" novalidate>
       <div class="annonce-input-group"><label for="elevage-categorie">Que vendez-vous ?</label><select id="elevage-categorie"><option value="animal">Un animal vivant</option><option value="materiel_agricole">Du matériel agricole (tracteur, motopompe, outillage…)</option><option value="materiel_elevage">Du matériel d'élevage (mangeoire, clôture, couveuse…)</option></select></div>
 
@@ -1137,7 +1131,7 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
       </div>
       <div id="preview-elevage" style="display:none;margin-bottom:14px;"><div id="preview-elevage-list" class="preview-gallery"></div></div>
       <div id="elevage-message" class="form-feedback" style="display:none;" role="alert"></div>
-      <button type="submit" class="btn-principal" id="btn-submit-elevage" style="width:100%;padding:14px;font-size:15px;background:var(--or);">Publier l'annonce (1 crédit)</button>
+      <button type="submit" class="btn-principal" id="btn-submit-elevage" style="width:100%;padding:14px;font-size:15px;background:var(--or);">Publier l'annonce</button>
     </form>
   </div>
 </section>
@@ -3037,7 +3031,7 @@ document.getElementById('form-terrain').addEventListener('submit', async e => {
     if (newId) setTimeout(() => openDetailPage('terrain', newId), 800);
     else chargerTerrains();
   }
-  btn.disabled = false; btn.textContent = "Publier l'annonce (1 crédit)";
+  btn.disabled = false; btn.textContent = "Publier l'annonce";
 });
 
 document.getElementById('form-fruit').addEventListener('submit', async e => {
@@ -3106,7 +3100,7 @@ document.getElementById('form-fruit').addEventListener('submit', async e => {
     if (newId) setTimeout(() => openDetailPage('fruit', newId), 800);
     else chargerFruits();
   }
-  btn.disabled = false; btn.textContent = 'Publier la vente de fruits (1 crédit)';
+  btn.disabled = false; btn.textContent = 'Publier la vente de fruits';
 });
 
 document.getElementById('form-elevage').addEventListener('submit', async e => {
@@ -3184,7 +3178,7 @@ document.getElementById('form-elevage').addEventListener('submit', async e => {
     if (newId) setTimeout(() => openDetailPage('elevage', newId), 800);
     else chargerElevage();
   }
-  btn.disabled = false; btn.textContent = "Publier l'annonce (1 crédit)";
+  btn.disabled = false; btn.textContent = "Publier l'annonce";
 });
 
 /* ══ WHATSAPP ═════════════════════════════════════════════════════════ */
