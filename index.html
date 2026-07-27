@@ -747,7 +747,7 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
     </div>
     <div class="choice-actions" style="justify-content:flex-start;margin-top:28px;">
       <button type="button" class="btn-principal" onclick="allerVersSection('credits')">Voir les forfaits</button>
-      <button type="button" class="btn-secondaire" onclick="openLoginModal()">Créer un compte (1 crédit offert)</button>
+      <button type="button" class="btn-secondaire" onclick="openLoginModal()">Créer un compte (10 crédits offerts)</button>
     </div>
   </div>
 </section>
@@ -872,12 +872,12 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
       <div class="section-eyebrow">Option — mise en avant</div>
       <h3 class="mise-avant-title">Placer une annonce à la une</h3>
       <p class="mise-avant-desc">7 crédits pour afficher votre annonce en tête du catalogue pendant 7 jours et sur la page d'accueil.</p>
-      <button type="button" class="btn-mise-avant-cta" onclick="openLoginModal()">Créer un compte — 1 crédit offert</button>
+      <button type="button" class="btn-mise-avant-cta" onclick="openLoginModal()">Créer un compte — 10 crédits offerts</button>
     </div>
     <div class="mise-avant-table">
       <div class="mise-avant-row"><span class="label">Publication d'annonce</span><span class="value">1 crédit</span></div>
       <div class="mise-avant-row"><span class="label">Mise en avant (7 jours)</span><span class="value">7 crédits</span></div>
-      <div class="mise-avant-row"><span class="label">Crédit offert à l'inscription</span><span class="value">1 crédit</span></div>
+      <div class="mise-avant-row"><span class="label">Crédits offerts à l'inscription</span><span class="value">10 crédits</span></div>
     </div>
   </div>
   <div class="credits-faq">
@@ -903,7 +903,7 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
     <div class="login-grid">
       <div class="login-left">
         <div class="section-eyebrow">Compte SunuSouf</div>
-        <h1 id="login-title" class="login-h1">Créez votre compte,<br><em>1 crédit offert</em> pour votre première annonce.</h1>
+        <h1 id="login-title" class="login-h1">Créez votre compte,<br><em>10 crédits offerts</em> pour vos premières annonces.</h1>
         <p class="login-sub">Connexion sécurisée par Google. Nous ne partageons pas votre email et n'envoyons aucun message commercial.</p>
         <ul class="login-benefits">
           <li>Publier des annonces de terrains et de fruits</li>
@@ -1057,7 +1057,7 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
         <div class="annonce-input-group"><label for="salinite">Salinité / conductivité en mS/cm (optionnel)</label><input type="number" step="0.1" min="0" id="salinite" placeholder="Ex : 0.8"></div>
         <div class="annonce-input-group"><label for="matiere-organique">Matière organique en % (optionnel)</label><input type="number" step="0.1" min="0" id="matiere-organique" placeholder="Ex : 3.2"></div>
       </div>
-      <div class="annonce-input-group"><label for="prix">Prix (FCFA)</label><input type="text" id="prix" placeholder="Ex : 5000000"></div>
+      <div class="annonce-input-group"><label for="prix">Prix (FCFA) *</label><input type="text" id="prix" placeholder="Ex : 5000000"><span class="file-size-warn" id="warn-prix-terrain">⚠️ Le prix est obligatoire.</span></div>
       <div class="annonce-input-group"><label for="description">Description</label><textarea id="description" rows="4" placeholder="Décrivez le terrain…"></textarea></div>
       <div class="annonce-input-group"><label for="contact">Contact (téléphone ou email) *</label><input type="text" id="contact" placeholder="77 XXX XX XX ou email@..." required><span class="file-size-warn" id="warn-contact-terrain">⚠️ Veuillez saisir un numéro de téléphone valide (8-9 chiffres) ou un email valide.</span></div>
       <div class="annonce-input-group">
@@ -1081,7 +1081,7 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
     <form id="form-fruit" novalidate>
       <div class="annonce-input-group"><label for="fruit-nom">Fruit</label><input type="text" id="fruit-nom" placeholder="Ex : Mangue, Banane, Pastèque" maxlength="80"></div>
       <div class="annonce-input-group"><label for="fruit-region">Région</label><select id="fruit-region"><option value="">Choisir une région</option><option value="dakar">Dakar</option><option value="thies">Thiès</option><option value="saint-louis">Saint-Louis</option><option value="kaolack">Kaolack</option><option value="ziguinchor">Ziguinchor</option><option value="fatick">Fatick</option><option value="kolda">Kolda</option><option value="louga">Louga</option><option value="matam">Matam</option><option value="tambacounda">Tambacounda</option><option value="kedougou">Kédougou</option><option value="diourbel">Diourbel</option><option value="kaffrine">Kaffrine</option><option value="sedhiou">Sédhiou</option></select></div>
-      <div class="annonce-input-group"><label for="prix-kg">Prix par kilo (FCFA)</label><input type="number" id="prix-kg" placeholder="Ex : 500" min="0"></div>
+      <div class="annonce-input-group"><label for="prix-kg">Prix par kilo (FCFA) *</label><input type="number" id="prix-kg" placeholder="Ex : 500" min="0"><span class="file-size-warn" id="warn-prix-fruit">⚠️ Le prix est obligatoire.</span></div>
       <div class="annonce-input-group"><label for="quantite-kg">Quantité disponible (kg)</label><input type="number" id="quantite-kg" placeholder="Ex : 100" min="1"></div>
       <div class="annonce-input-group"><label for="description-fruits">Description</label><textarea id="description-fruits" rows="4" placeholder="Mangues mûres, récolte locale…"></textarea></div>
       <div class="annonce-input-group"><label for="contact-fruits">Contact (téléphone ou email) *</label><input type="text" id="contact-fruits" placeholder="77 XXX XX XX ou email@..." required><span class="file-size-warn" id="warn-contact-fruit">⚠️ Veuillez saisir un numéro de téléphone valide (8-9 chiffres) ou un email valide.</span></div>
@@ -1105,22 +1105,26 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
     <p class="annonce-note" id="new-seller-note-elevage" style="display:none;"></p>
     <form id="form-elevage" novalidate>
       <div class="annonce-input-group"><label for="elevage-categorie">Que vendez-vous ?</label><select id="elevage-categorie"><option value="animal">Un animal vivant</option><option value="materiel_agricole">Du matériel agricole (tracteur, motopompe, outillage…)</option><option value="materiel_elevage">Du matériel d'élevage (mangeoire, clôture, couveuse…)</option></select></div>
+      <p class="annonce-note" style="margin-top:-4px;">👉 Les champs ci-dessous changent automatiquement selon votre choix.</p>
 
       <div id="bloc-elevage-animal">
+        <p style="font-weight:700;color:var(--noir);margin:18px 0 6px;font-family:var(--font-serif);font-size:1.05rem;">🐄 Détails de l'animal</p>
         <div class="annonce-input-group"><label for="animal-type">Type d'animal</label><select id="animal-type"><option value="">Choisir</option><option value="Bovin">Bovin (bœuf, vache, taureau)</option><option value="Ovin">Ovin (mouton)</option><option value="Caprin">Caprin (chèvre)</option><option value="Volaille">Volaille (poule, coq, dinde, pintade)</option><option value="Porcin">Porcin (porc)</option><option value="Équin">Équin (cheval, âne)</option><option value="Autre">Autre</option></select></div>
         <div class="annonce-input-group"><label for="animal-race">Race</label><input type="text" id="animal-race" placeholder="Ex : Gobra, Ladoum, Sahel…" maxlength="80"></div>
         <div class="annonce-input-group"><label for="animal-age">Âge</label><input type="text" id="animal-age" placeholder="Ex : 8 mois, 2 ans" maxlength="40"></div>
       </div>
 
       <div id="bloc-elevage-materiel" style="display:none;">
+        <p style="font-weight:700;color:var(--noir);margin:18px 0 6px;font-family:var(--font-serif);font-size:1.05rem;">🔧 Détails du matériel</p>
         <div class="annonce-input-group"><label for="materiel-nom">Nom du matériel</label><input type="text" id="materiel-nom" placeholder="Ex : Motopompe 5.5 CV, Mangeoire volaille 20 kg…" maxlength="100"></div>
         <div class="annonce-input-group"><label for="materiel-etat">État</label><select id="materiel-etat"><option value="">Choisir</option><option value="Neuf">Neuf</option><option value="Occasion - bon état">Occasion - bon état</option><option value="Occasion - à réviser">Occasion - à réviser</option></select></div>
         <div class="annonce-input-group"><label for="materiel-marque">Marque (optionnel)</label><input type="text" id="materiel-marque" placeholder="Ex : Honda, non renseigné si inconnue" maxlength="60"></div>
       </div>
 
+      <p style="font-weight:700;color:var(--noir);margin:18px 0 6px;font-family:var(--font-serif);font-size:1.05rem;">📋 Informations générales</p>
       <div class="annonce-input-group"><label for="animal-quantite" id="label-elevage-quantite">Quantité (têtes)</label><input type="number" id="animal-quantite" placeholder="Ex : 1" min="1"></div>
       <div class="annonce-input-group"><label for="elevage-region">Région</label><select id="elevage-region"><option value="">Choisir une région</option><option value="dakar">Dakar</option><option value="thies">Thiès</option><option value="saint-louis">Saint-Louis</option><option value="kaolack">Kaolack</option><option value="ziguinchor">Ziguinchor</option><option value="fatick">Fatick</option><option value="kolda">Kolda</option><option value="louga">Louga</option><option value="matam">Matam</option><option value="tambacounda">Tambacounda</option><option value="kedougou">Kédougou</option><option value="diourbel">Diourbel</option><option value="kaffrine">Kaffrine</option><option value="sedhiou">Sédhiou</option></select></div>
-      <div class="annonce-input-group"><label for="animal-prix">Prix (FCFA)</label><input type="text" id="animal-prix" placeholder="Ex : 250000"></div>
+      <div class="annonce-input-group"><label for="animal-prix">Prix (FCFA) *</label><input type="text" id="animal-prix" placeholder="Ex : 250000"><span class="file-size-warn" id="warn-prix-elevage">⚠️ Le prix est obligatoire.</span></div>
       <div class="annonce-input-group"><label for="description-elevage" id="label-elevage-description">Description</label><textarea id="description-elevage" rows="4" placeholder="État de santé, vaccination, sevrage…"></textarea></div>
       <div class="annonce-input-group"><label for="contact-elevage">Contact (téléphone ou email) *</label><input type="text" id="contact-elevage" placeholder="77 XXX XX XX ou email@..." required><span class="file-size-warn" id="warn-contact-elevage">⚠️ Veuillez saisir un numéro de téléphone valide (8-9 chiffres) ou un email valide.</span></div>
       <div class="annonce-input-group">
@@ -1541,6 +1545,17 @@ function showFeedback(id, msg, ok) {
   el.textContent   = msg;
   el.style.color   = ok ? '#2e7d32' : '#c62828';
   el.style.background = ok ? '#e8f5e9' : '#ffebee';
+}
+
+/* ══ ASTUCE "METTRE À LA UNE" (affichée une seule fois, après la 1ère
+   publication réussie d'un utilisateur, pour lui faire découvrir la
+   fonctionnalité payante) ══════════════════════════════════════════ */
+function afficherAstuceMiseEnAvantSiPremiere(feedbackId) {
+  const DEJA_VU_KEY = 'sunusouf_astuce_une_vue';
+  if (localStorage.getItem(DEJA_VU_KEY)) return;
+  localStorage.setItem(DEJA_VU_KEY, '1');
+  const el = document.getElementById(feedbackId);
+  if (el) el.textContent += ' 💡 Envie de plus de visibilité ? Retrouvez votre annonce dans "Mes annonces" pour la mettre à la une.';
 }
 
 /* ══ RECHERCHE + FILTRES ══════════════════════════════════════════════ */
@@ -2967,6 +2982,14 @@ document.getElementById('form-terrain').addEventListener('submit', async e => {
     return;
   }
   if (warnContact) warnContact.style.display = 'none';
+  const prixVal = document.getElementById('prix').value.trim();
+  const warnPrix = document.getElementById('warn-prix-terrain');
+  if (!prixVal) {
+    if (warnPrix) warnPrix.style.display = 'block';
+    document.getElementById('prix').focus();
+    return;
+  }
+  if (warnPrix) warnPrix.style.display = 'none';
   /* Photo obligatoire : ligne de défense n°1 contre les fausses annonces/spam */
   const files = Array.from(document.getElementById('photos-terrain').files || []).filter(f => f.size <= MAX_FILE_SIZE);
   const warnPhoto = document.getElementById('warn-photo-required-terrain');
@@ -3017,6 +3040,7 @@ document.getElementById('form-terrain').addEventListener('submit', async e => {
     const newIdHash = inserted?.[0]?.id;
     if (newIdHash) await enregistrerHashesPhotos(hashes, 'terrain', newIdHash, session.user.id);
     showFeedback('terrain-message', `✅ Annonce publiée !`, true);
+    afficherAstuceMiseEnAvantSiPremiere('terrain-message');
     localStorage.setItem('currentContact', td.contact);
     document.getElementById('form-terrain').reset();
     document.getElementById('preview-terrain').style.display = 'none';
@@ -3046,6 +3070,14 @@ document.getElementById('form-fruit').addEventListener('submit', async e => {
     return;
   }
   if (warnContact) warnContact.style.display = 'none';
+  const prixVal = document.getElementById('prix-kg').value.trim();
+  const warnPrix = document.getElementById('warn-prix-fruit');
+  if (!prixVal) {
+    if (warnPrix) warnPrix.style.display = 'block';
+    document.getElementById('prix-kg').focus();
+    return;
+  }
+  if (warnPrix) warnPrix.style.display = 'none';
   /* Photo obligatoire : ligne de défense n°1 contre les fausses annonces/spam */
   const files = Array.from(document.getElementById('photos-fruits').files || []).filter(f => f.size <= MAX_FILE_SIZE);
   const warnPhoto = document.getElementById('warn-photo-required-fruit');
@@ -3087,6 +3119,7 @@ document.getElementById('form-fruit').addEventListener('submit', async e => {
     const newIdHash = Array.isArray(inserted) ? inserted[0]?.id : inserted?.id;
     if (newIdHash) await enregistrerHashesPhotos(hashes, 'fruit', newIdHash, session.user.id);
     showFeedback('fruit-message', `✅ Annonce publiée !`, true);
+    afficherAstuceMiseEnAvantSiPremiere('fruit-message');
     localStorage.setItem('currentContact', payload.contact);
     document.getElementById('form-fruit').reset();
     document.getElementById('preview-fruit').style.display = 'none';
@@ -3115,6 +3148,14 @@ document.getElementById('form-elevage').addEventListener('submit', async e => {
     return;
   }
   if (warnContact) warnContact.style.display = 'none';
+  const prixVal = document.getElementById('animal-prix').value.trim();
+  const warnPrix = document.getElementById('warn-prix-elevage');
+  if (!prixVal) {
+    if (warnPrix) warnPrix.style.display = 'block';
+    document.getElementById('animal-prix').focus();
+    return;
+  }
+  if (warnPrix) warnPrix.style.display = 'none';
   /* Photo obligatoire : ligne de défense n°1 contre les fausses annonces/spam */
   const files = Array.from(document.getElementById('photos-elevage').files || []).filter(f => f.size <= MAX_FILE_SIZE);
   const warnPhoto = document.getElementById('warn-photo-required-elevage');
@@ -3164,6 +3205,7 @@ document.getElementById('form-elevage').addEventListener('submit', async e => {
     const newIdHash = Array.isArray(inserted) ? inserted[0]?.id : inserted?.id;
     if (newIdHash) await enregistrerHashesPhotos(hashes, 'elevage', newIdHash, session.user.id);
     showFeedback('elevage-message', `✅ Annonce publiée !`, true);
+    afficherAstuceMiseEnAvantSiPremiere('elevage-message');
     localStorage.setItem('currentContact', payload.contact);
     document.getElementById('form-elevage').reset();
     toggleCategorieElevage();
