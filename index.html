@@ -946,6 +946,7 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
           <form id="form-email-signup" style="display:none;">
             <div class="annonce-input-group"><label for="email-signup-input">Email</label><input type="email" id="email-signup-input" required autocomplete="email"></div>
             <div class="annonce-input-group"><label for="email-signup-password">Mot de passe (8 caractères min.)</label><input type="password" id="email-signup-password" minlength="8" required autocomplete="new-password"></div>
+            <!-- ⚠️ REMPLACE data-sitekey PAR TA VRAIE CLÉ (dash.cloudflare.com > Turnstile > ton site > Site Key). Tant que c'est "TON_SITE_KEY_TURNSTILE", le widget ne se charge pas et l'anti-bot à l'inscription est inactif. -->
             <div class="cf-turnstile" data-sitekey="TON_SITE_KEY_TURNSTILE" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired" style="margin-bottom:14px;"></div>
             <button type="submit" class="btn-principal" style="width:100%;">Créer mon compte</button>
             <div class="form-error" id="email-signup-error" role="alert" style="display:none;"></div>
@@ -2193,8 +2194,8 @@ async function renderDetailPage(type, id) {
       <span class="copy-toast" id="copy-toast-${item.id}">✓ Lien copié !</span>
     </div>
     <div class="detail-action-group">
-      ${!estEmail ? `<button class="btn-principal" onclick="window.location='tel:${escapeHtml(contact)}'" aria-label="Appeler le vendeur"> Appeler</button>` : ''}
-      ${contact ? `<button class="btn-whatsapp" onclick="ouvrirWhatsApp('${escapeHtml(contact)}')" aria-label="Contacter sur WhatsApp">${estEmail ? '✉️ Email : '+escapeHtml(contact) : ' WhatsApp'}</button>` : ''}
+      ${!estEmail ? `<button class="btn-principal btn-tel-call" data-tel="${escapeHtml(contact)}" aria-label="Appeler le vendeur"> Appeler</button>` : ''}
+      ${contact ? `<button class="btn-whatsapp btn-whatsapp-contact" data-contact="${escapeHtml(contact)}" aria-label="Contacter sur WhatsApp">${estEmail ? '✉️ Email : '+escapeHtml(contact) : ' WhatsApp'}</button>` : ''}
     </div>`;
 
   scrollIntoViewReliable(document.getElementById('detail-page'));
@@ -2759,6 +2760,9 @@ async function unenrollMfa() {
    Key Cloudflare correspondante). Le site-key ci-dessus (data-sitekey)
    doit être remplacé par la Site Key publique obtenue sur
    dash.cloudflare.com > Turnstile. */
+if (document.querySelector('.cf-turnstile[data-sitekey="TON_SITE_KEY_TURNSTILE"]')) {
+  console.warn('[SunuSouf] Turnstile non configuré : remplace data-sitekey="TON_SITE_KEY_TURNSTILE" par ta vraie clé de site (dash.cloudflare.com > Turnstile). L\'anti-bot à l\'inscription est actuellement inactif.');
+}
 let turnstileToken = null;
 function onTurnstileSuccess(token) { turnstileToken = token; }
 function onTurnstileExpired() { turnstileToken = null; }
@@ -2958,7 +2962,7 @@ document.getElementById('photos-terrain').addEventListener('change', function() 
   checkFilesSizes(this, 'warn-terrain');
   const warnPhoto = document.getElementById('warn-photo-required-terrain');
   if (warnPhoto && this.files?.length) warnPhoto.style.display = 'none';
-  const files = Array.from(this.files || []).filter(f => f.size <= MAX_FILE_SIZE);
+  const files = Array.from(this.files || []).filter(f => f.size <= MAX_FILE_SIZE && f.type.startsWith('image/'));
   const p = document.getElementById('preview-terrain');
   const l = document.getElementById('preview-terrain-list');
   if (!files.length) { p.style.display='none'; l.innerHTML=''; return; }
@@ -2970,7 +2974,7 @@ document.getElementById('photos-fruits').addEventListener('change', function() {
   checkFilesSizes(this, 'warn-fruit');
   const warnPhoto = document.getElementById('warn-photo-required-fruit');
   if (warnPhoto && this.files?.length) warnPhoto.style.display = 'none';
-  const files = Array.from(this.files || []).filter(f => f.size <= MAX_FILE_SIZE);
+  const files = Array.from(this.files || []).filter(f => f.size <= MAX_FILE_SIZE && f.type.startsWith('image/'));
   const p = document.getElementById('preview-fruit');
   const l = document.getElementById('preview-fruit-list');
   if (!files.length) { p.style.display='none'; l.innerHTML=''; return; }
@@ -2982,7 +2986,7 @@ document.getElementById('photos-elevage').addEventListener('change', function() 
   checkFilesSizes(this, 'warn-elevage');
   const warnPhoto = document.getElementById('warn-photo-required-elevage');
   if (warnPhoto && this.files?.length) warnPhoto.style.display = 'none';
-  const files = Array.from(this.files || []).filter(f => f.size <= MAX_FILE_SIZE);
+  const files = Array.from(this.files || []).filter(f => f.size <= MAX_FILE_SIZE && f.type.startsWith('image/'));
   const p = document.getElementById('preview-elevage');
   const l = document.getElementById('preview-elevage-list');
   if (!files.length) { p.style.display='none'; l.innerHTML=''; return; }
@@ -3011,7 +3015,7 @@ document.getElementById('form-terrain').addEventListener('submit', async e => {
   }
   if (warnPrix) warnPrix.style.display = 'none';
   /* Photo obligatoire : ligne de défense n°1 contre les fausses annonces/spam */
-  const files = Array.from(document.getElementById('photos-terrain').files || []).filter(f => f.size <= MAX_FILE_SIZE);
+  const files = Array.from(document.getElementById('photos-terrain').files || []).filter(f => f.size <= MAX_FILE_SIZE && f.type.startsWith('image/'));
   const warnPhoto = document.getElementById('warn-photo-required-terrain');
   if (!files.length) {
     if (warnPhoto) warnPhoto.style.display = 'block';
@@ -3099,7 +3103,7 @@ document.getElementById('form-fruit').addEventListener('submit', async e => {
   }
   if (warnPrix) warnPrix.style.display = 'none';
   /* Photo obligatoire : ligne de défense n°1 contre les fausses annonces/spam */
-  const files = Array.from(document.getElementById('photos-fruits').files || []).filter(f => f.size <= MAX_FILE_SIZE);
+  const files = Array.from(document.getElementById('photos-fruits').files || []).filter(f => f.size <= MAX_FILE_SIZE && f.type.startsWith('image/'));
   const warnPhoto = document.getElementById('warn-photo-required-fruit');
   if (!files.length) {
     if (warnPhoto) warnPhoto.style.display = 'block';
@@ -3177,7 +3181,7 @@ document.getElementById('form-elevage').addEventListener('submit', async e => {
   }
   if (warnPrix) warnPrix.style.display = 'none';
   /* Photo obligatoire : ligne de défense n°1 contre les fausses annonces/spam */
-  const files = Array.from(document.getElementById('photos-elevage').files || []).filter(f => f.size <= MAX_FILE_SIZE);
+  const files = Array.from(document.getElementById('photos-elevage').files || []).filter(f => f.size <= MAX_FILE_SIZE && f.type.startsWith('image/'));
   const warnPhoto = document.getElementById('warn-photo-required-elevage');
   if (!files.length) {
     if (warnPhoto) warnPhoto.style.display = 'block';
@@ -3382,7 +3386,7 @@ function renderMesFavoris() {
         <div class="card-meta-box"><div class="meta-cell"><strong>Région:</strong>${escapeHtml(region)}</div></div>
       </div>
       <div class="card-footer">
-        <button class="btn-danger" onclick="event.stopPropagation();toggleFavori('${f.type}','${f.id}','',event)">❌ Retirer</button>
+        <button class="btn-danger btn-favori-remove" data-type="${escapeHtml(f.type)}" data-id="${escapeHtml(String(f.id))}">❌ Retirer</button>
         <button class="btn-contacter" onclick="event.stopPropagation();openDetailPage('${f.type}','${f.id}')">Voir →</button>
       </div>
     </article>`;
@@ -3392,9 +3396,8 @@ function renderMesFavoris() {
 
 function makeFavoriBtn(type, id, titre) {
   const actif = isFavori(type, id);
-  return `<button class="btn-favori${actif?' actif':''}" data-type="${type}" data-id="${id}"
-    aria-label="${actif?'Retirer des favoris':'Ajouter aux favoris'}"
-    onclick="toggleFavori('${type}','${id}','${escapeHtml(titre)}',event)">${actif?'❤️':'🤍'}</button>`;
+  return `<button class="btn-favori${actif?' actif':''}" data-type="${escapeHtml(type)}" data-id="${escapeHtml(String(id))}" data-titre="${escapeHtml(titre)}"
+    aria-label="${actif?'Retirer des favoris':'Ajouter aux favoris'}">${actif?'❤️':'🤍'}</button>`;
 }
 
 /* ══ SUIVI DE VUES ════════════════════════════════════════════════════ */
@@ -3605,6 +3608,24 @@ document.getElementById('signal-modal')?.addEventListener('click', e => {
 /* renderDetailPage patch supprimé — favori/vue/signalement intégrés directement */
 
 /* card patches supprimés — favori intégré directement dans renderCardTerrain/Fruit */
+
+/* ══ DELEGATION CLICS (fix XSS onclick inline) ═══════════════════════════
+   Remplace les anciens onclick="fn('${escapeHtml(data)}')" par des data-*
+   lus via dataset (jamais réinterprétés comme du JS, contrairement à un
+   attribut onclick où les entités HTML sont redécodées avant exécution). */
+document.addEventListener('click', (e) => {
+  const telBtn = e.target.closest('.btn-tel-call');
+  if (telBtn) { window.location = 'tel:' + telBtn.dataset.tel; return; }
+
+  const waBtn = e.target.closest('.btn-whatsapp-contact');
+  if (waBtn) { ouvrirWhatsApp(waBtn.dataset.contact); return; }
+
+  const favBtn = e.target.closest('.btn-favori');
+  if (favBtn) { e.stopPropagation(); toggleFavori(favBtn.dataset.type, favBtn.dataset.id, favBtn.dataset.titre || '', e); return; }
+
+  const favRemoveBtn = e.target.closest('.btn-favori-remove');
+  if (favRemoveBtn) { e.stopPropagation(); toggleFavori(favRemoveBtn.dataset.type, favRemoveBtn.dataset.id, '', e); return; }
+});
 
 /* ══ INIT ═════════════════════════════════════════════════════════════ */
 mettreAJourUI();
