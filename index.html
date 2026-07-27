@@ -19,6 +19,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 :root{
   color-scheme:only light;
@@ -945,6 +946,7 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
           <form id="form-email-signup" style="display:none;">
             <div class="annonce-input-group"><label for="email-signup-input">Email</label><input type="email" id="email-signup-input" required autocomplete="email"></div>
             <div class="annonce-input-group"><label for="email-signup-password">Mot de passe (8 caractères min.)</label><input type="password" id="email-signup-password" minlength="8" required autocomplete="new-password"></div>
+            <div class="cf-turnstile" data-sitekey="TON_SITE_KEY_TURNSTILE" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired" style="margin-bottom:14px;"></div>
             <button type="submit" class="btn-principal" style="width:100%;">Créer mon compte</button>
             <div class="form-error" id="email-signup-error" role="alert" style="display:none;"></div>
             <div class="form-feedback" id="email-signup-success" style="display:none;"></div>
@@ -2750,6 +2752,17 @@ async function unenrollMfa() {
    Providers → Email → "Confirm email". Tant qu'il est activé, signUp()
    ne renvoie AUCUNE session tant que le lien reçu par mail n'a pas été
    cliqué, et signInWithPassword() est refusé avec une erreur explicite. */
+/* ── Cloudflare Turnstile (anti-bot à l'inscription) ─────────────────
+   Le token est vérifié côté serveur automatiquement par Supabase Auth
+   (à condition d'avoir activé "Bot and Abuse Protection > Turnstile"
+   dans Supabase > Authentication > Attack Protection, avec la Secret
+   Key Cloudflare correspondante). Le site-key ci-dessus (data-sitekey)
+   doit être remplacé par la Site Key publique obtenue sur
+   dash.cloudflare.com > Turnstile. */
+let turnstileToken = null;
+function onTurnstileSuccess(token) { turnstileToken = token; }
+function onTurnstileExpired() { turnstileToken = null; }
+
 let switchEmailAuthMode, lastUnconfirmedEmail = null;
 (() => {
   switchEmailAuthMode = function(mode) {
@@ -2766,10 +2779,17 @@ let switchEmailAuthMode, lastUnconfirmedEmail = null;
     const errEl = document.getElementById('email-signup-error');
     const okEl  = document.getElementById('email-signup-success');
     errEl.style.display = 'none'; okEl.style.display = 'none';
+    if (!turnstileToken) {
+      errEl.textContent = 'Merci de valider le test de sécurité (captcha) avant de continuer.';
+      errEl.style.display = 'block';
+      return;
+    }
     const { data, error } = await db.auth.signUp({
       email, password,
-      options: { emailRedirectTo: SITE_URL }
+      options: { emailRedirectTo: SITE_URL, captchaToken: turnstileToken }
     });
+    if (window.turnstile) turnstile.reset();
+    turnstileToken = null;
     if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
     if (data.session) {
       /* La confirmation email est désactivée côté Supabase : session
@@ -3002,7 +3022,7 @@ document.getElementById('form-terrain').addEventListener('submit', async e => {
   /* Limite anti-spam pour les nouveaux comptes (vérif rapide côté client,
      la vraie protection est le trigger serveur — voir sunusouf_antifraude.sql) */
   if (!(await verifierLimiteAvantPublication(session))) {
-    showFeedback('terrain-message', `🚫 Limite de ${LIMITE_ANNONCES_NOUVEAU_COMPTE} annonces/24h atteinte pour les nouveaux comptes. Réessayez plus tard.`, false);
+    showFeedback('terrain-message', `🚫 Limite de ${LIMITE_ANNONCES_NOUVEAU_COMPTE} annonces/24h atteinte (nouveau compte ou numéro déjà utilisé récemment). Réessayez plus tard.`, false);
     return;
   }
   const btn = document.getElementById('btn-submit-terrain');
@@ -3034,7 +3054,7 @@ document.getElementById('form-terrain').addEventListener('submit', async e => {
   if (error) {
     const limiteAtteinte = /limite_spam_nouveau_compte/i.test(error.message || '');
     showFeedback('terrain-message', limiteAtteinte
-      ? `🚫 Limite de ${LIMITE_ANNONCES_NOUVEAU_COMPTE} annonces/24h atteinte pour les nouveaux comptes. Réessayez plus tard.`
+      ? `🚫 Limite de ${LIMITE_ANNONCES_NOUVEAU_COMPTE} annonces/24h atteinte (nouveau compte ou numéro déjà utilisé récemment). Réessayez plus tard.`
       : 'Erreur : ' + error.message, false);
   } else {
     const newIdHash = inserted?.[0]?.id;
@@ -3090,7 +3110,7 @@ document.getElementById('form-fruit').addEventListener('submit', async e => {
   /* Limite anti-spam pour les nouveaux comptes (vérif rapide côté client,
      la vraie protection est le trigger serveur — voir sunusouf_antifraude.sql) */
   if (!(await verifierLimiteAvantPublication(session))) {
-    showFeedback('fruit-message', `🚫 Limite de ${LIMITE_ANNONCES_NOUVEAU_COMPTE} annonces/24h atteinte pour les nouveaux comptes. Réessayez plus tard.`, false);
+    showFeedback('fruit-message', `🚫 Limite de ${LIMITE_ANNONCES_NOUVEAU_COMPTE} annonces/24h atteinte (nouveau compte ou numéro déjà utilisé récemment). Réessayez plus tard.`, false);
     return;
   }
   const btn = document.getElementById('btn-submit-fruit');
@@ -3113,7 +3133,7 @@ document.getElementById('form-fruit').addEventListener('submit', async e => {
   if (error) {
     const limiteAtteinte = /limite_spam_nouveau_compte/i.test(error.message || '');
     showFeedback('fruit-message', limiteAtteinte
-      ? `🚫 Limite de ${LIMITE_ANNONCES_NOUVEAU_COMPTE} annonces/24h atteinte pour les nouveaux comptes. Réessayez plus tard.`
+      ? `🚫 Limite de ${LIMITE_ANNONCES_NOUVEAU_COMPTE} annonces/24h atteinte (nouveau compte ou numéro déjà utilisé récemment). Réessayez plus tard.`
       : 'Erreur : ' + error.message, false);
   } else {
     const newIdHash = Array.isArray(inserted) ? inserted[0]?.id : inserted?.id;
@@ -3168,7 +3188,7 @@ document.getElementById('form-elevage').addEventListener('submit', async e => {
   /* Limite anti-spam pour les nouveaux comptes (vérif rapide côté client,
      la vraie protection est le trigger serveur — voir sunusouf_antifraude.sql) */
   if (!(await verifierLimiteAvantPublication(session))) {
-    showFeedback('elevage-message', `🚫 Limite de ${LIMITE_ANNONCES_NOUVEAU_COMPTE} annonces/24h atteinte pour les nouveaux comptes. Réessayez plus tard.`, false);
+    showFeedback('elevage-message', `🚫 Limite de ${LIMITE_ANNONCES_NOUVEAU_COMPTE} annonces/24h atteinte (nouveau compte ou numéro déjà utilisé récemment). Réessayez plus tard.`, false);
     return;
   }
   const btn = document.getElementById('btn-submit-elevage');
@@ -3199,7 +3219,7 @@ document.getElementById('form-elevage').addEventListener('submit', async e => {
   if (error) {
     const limiteAtteinte = /limite_spam_nouveau_compte/i.test(error.message || '');
     showFeedback('elevage-message', limiteAtteinte
-      ? `🚫 Limite de ${LIMITE_ANNONCES_NOUVEAU_COMPTE} annonces/24h atteinte pour les nouveaux comptes. Réessayez plus tard.`
+      ? `🚫 Limite de ${LIMITE_ANNONCES_NOUVEAU_COMPTE} annonces/24h atteinte (nouveau compte ou numéro déjà utilisé récemment). Réessayez plus tard.`
       : 'Erreur : ' + error.message, false);
   } else {
     const newIdHash = Array.isArray(inserted) ? inserted[0]?.id : inserted?.id;
