@@ -1050,6 +1050,16 @@ body{font-family:var(--font-main);background:var(--fond);color:var(--noir);min-h
       <div class="annonce-input-group"><label for="region">Région</label><select id="region"><option value="">Choisir une région</option><option value="dakar">Dakar</option><option value="thies">Thiès</option><option value="saint-louis">Saint-Louis</option><option value="kaolack">Kaolack</option><option value="ziguinchor">Ziguinchor</option><option value="fatick">Fatick</option><option value="kolda">Kolda</option><option value="louga">Louga</option><option value="matam">Matam</option><option value="tambacounda">Tambacounda</option><option value="kedougou">Kédougou</option><option value="diourbel">Diourbel</option><option value="kaffrine">Kaffrine</option><option value="sedhiou">Sédhiou</option></select></div>
       <div class="annonce-input-group"><label for="adresse">Adresse</label><input type="text" id="adresse" placeholder="Ex : Route de Rufisque, Dakar"></div>
       <div class="annonce-input-group"><label for="type-annonce">Type</label><select id="type-annonce"><option value="Terrain agricole">Terrain agricole</option><option value="Terrain résidentiel">Terrain résidentiel</option><option value="Terrain commercial">Terrain commercial</option></select></div>
+      <div class="annonce-input-group">
+        <label for="type-document">Type de document *</label>
+        <select id="type-document" required>
+          <option value="">Choisir le type de document</option>
+          <option value="titre_foncier">Titre foncier</option>
+          <option value="bail">Bail</option>
+          <option value="deliberation">Délibération municipale</option>
+        </select>
+        <span class="file-size-warn" id="warn-doc-terrain">⚠️ Merci d'indiquer le type de document justifiant la propriété du terrain.</span>
+      </div>
       <div class="annonce-input-group annonce-checkbox-group"><label><input type="checkbox" id="eau-courante"> Accès Eau Courante</label></div>
       <div class="annonce-input-group annonce-checkbox-group"><label><input type="checkbox" id="electricite"> Accès Électricité</label></div>
       <div class="annonce-input-group"><label for="surface">Surface (m²)</label><input type="number" id="surface" placeholder="Ex : 500" min="1"></div>
@@ -1300,6 +1310,24 @@ async function chargerVendeursRecents(userIds) {
   (data || []).forEach(r => nouveauxVendeurs.add(r.user_id));
 }
 function estNouveauVendeur(userId) { return nouveauxVendeurs.has(userId); }
+
+/* ══ BADGE DE CONFIANCE SELON LE TYPE DE DOCUMENT (terrains) ══════════
+   titre_foncier  → le document le plus solide juridiquement, badge vert "Vérifié"
+   bail           → document valide mais droit d'usage seulement, badge neutre
+   deliberation   → délibération municipale, souvent utilisée pour du terrain
+                     non encore titré : badge orange "À vérifier", et ces
+                     annonces sont priorisées côté modération (voir
+                     getTerrainsAModererEnPriorite ci-dessous). */
+const DOCUMENT_BADGES = {
+  titre_foncier: { label: '✅ Vérifié — Titre foncier', bg: '#2e7d32', title: 'Propriété attestée par un titre foncier' },
+  bail:          { label: '📄 Bail', bg: '#5b6b73', title: 'Terrain loué par bail, pas en pleine propriété' },
+  deliberation:  { label: '⚠️ À vérifier — Délibération', bg: '#c9720a', title: 'Attribution par délibération municipale : à vérifier avant achat' },
+};
+function renderDocumentBadge(typeDocument) {
+  const b = DOCUMENT_BADGES[typeDocument];
+  if (!b) return '';
+  return `<span class="badge-une" style="background:${b.bg};color:#fff" title="${escapeHtml(b.title)}">${b.label}</span>`;
+}
 
 /* Vérification côté client avant upload (évite de gaspiller un upload
    de photos si la limite sera de toute façon refusée par le serveur) */
@@ -1783,6 +1811,7 @@ function renderCardTerrain(t) {
       ${makeFavoriBtn('terrain', t.id, t.titre||'')}
       <div class="card-badges-topleft">
         ${t.en_avant ? '<span class="badge-une">★ À la une</span>' : ''}
+        ${renderDocumentBadge(t.type_document)}
         ${estNouveauVendeur(t.user_id) ? '<span class="badge-nouveau-vendeur" title="Compte vendeur créé il y a moins de 7 jours">Nouveau vendeur</span>' : ''}
         ${aiCultureReasons[t.id] ? `<span class="badge-une" style="background:#2e7d32;color:#fff" title="${escapeHtml(aiCultureReasons[t.id].raison)}">🌱 ${aiCultureReasons[t.id].score}% match</span>` : ''}
       </div>
@@ -2132,12 +2161,12 @@ async function renderDetailPage(type, id) {
 
   c.innerHTML = `
     <h1 class="detail-page-title">${escapeHtml(itemLabel)}</h1>
-    ${prixA ? `<div class="detail-prix-block"><div class="detail-prix">${escapeHtml(prixA)}</div>${dateP?`<div class="detail-date-badge">Publié le ${dateP}</div>`:''}${estNouveauVendeur(item.user_id)?`<div class="detail-date-badge" title="Compte vendeur créé il y a moins de 7 jours">Nouveau vendeur</div>`:''}</div>` : (dateP?`<div class="detail-prix-block"><div class="detail-date-badge">Publié le ${dateP}</div>${estNouveauVendeur(item.user_id)?`<div class="detail-date-badge" title="Compte vendeur créé il y a moins de 7 jours">Nouveau vendeur</div>`:''}</div>`:'')}
+    ${prixA ? `<div class="detail-prix-block"><div class="detail-prix">${escapeHtml(prixA)}</div>${dateP?`<div class="detail-date-badge">Publié le ${dateP}</div>`:''}${estNouveauVendeur(item.user_id)?`<div class="detail-date-badge" title="Compte vendeur créé il y a moins de 7 jours">Nouveau vendeur</div>`:''}${type==='terrain'?renderDocumentBadge(item.type_document):''}</div>` : (dateP?`<div class="detail-prix-block"><div class="detail-date-badge">Publié le ${dateP}</div>${estNouveauVendeur(item.user_id)?`<div class="detail-date-badge" title="Compte vendeur créé il y a moins de 7 jours">Nouveau vendeur</div>`:''}${type==='terrain'?renderDocumentBadge(item.type_document):''}</div>`:'')}
     ${imgBlock}
     <div class="detail-page-map" id="${mapId}"></div>
     <div class="detail-page-meta">
       ${type==='terrain'
-        ? `<span>Type : ${escapeHtml(item.type_annonce||'—')}</span>`
+        ? `<span>Type : ${escapeHtml(item.type_annonce||'—')}</span><span>Document : ${escapeHtml(DOCUMENT_BADGES[item.type_document]?.label.replace(/^[^\s]+\s/,'') || 'Non renseigné')}</span>`
         : type==='fruit'
         ? `<span>Fruit : ${escapeHtml(getFruitLabel(item))}</span>`
         : estMateriel(item)
@@ -3014,6 +3043,14 @@ document.getElementById('form-terrain').addEventListener('submit', async e => {
     return;
   }
   if (warnPrix) warnPrix.style.display = 'none';
+  const typeDocVal = document.getElementById('type-document').value;
+  const warnDoc = document.getElementById('warn-doc-terrain');
+  if (!typeDocVal) {
+    if (warnDoc) warnDoc.style.display = 'block';
+    document.getElementById('type-document').focus();
+    return;
+  }
+  if (warnDoc) warnDoc.style.display = 'none';
   /* Photo obligatoire : ligne de défense n°1 contre les fausses annonces/spam */
   const files = Array.from(document.getElementById('photos-terrain').files || []).filter(f => f.size <= MAX_FILE_SIZE && f.type.startsWith('image/'));
   const warnPhoto = document.getElementById('warn-photo-required-terrain');
@@ -3040,6 +3077,7 @@ document.getElementById('form-terrain').addEventListener('submit', async e => {
     region          : document.getElementById('region').value,
     adresse         : document.getElementById('adresse').value.trim(),
     type_annonce    : document.getElementById('type-annonce').value,
+    type_document   : typeDocVal,
     eau_courante    : document.getElementById('eau-courante').checked,
     electricite     : document.getElementById('electricite').checked,
     surface         : document.getElementById('surface').value.trim() === '' ? null : parseFloat(document.getElementById('surface').value),
@@ -3069,6 +3107,7 @@ document.getElementById('form-terrain').addEventListener('submit', async e => {
     document.getElementById('form-terrain').reset();
     document.getElementById('preview-terrain').style.display = 'none';
     document.getElementById('warn-terrain').style.display = 'none';
+    if (warnDoc) warnDoc.style.display = 'none';
     if (warnPhoto) warnPhoto.style.display = 'none';
     closePosterAnnonce();
     updateCreditsUI();
